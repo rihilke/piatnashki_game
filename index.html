@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Пятнашки</title>
+    <link rel="stylesheet" href="./gamecss.css">
+  </head>
+  <body>
+    <!-- Начало игры -->
+    <div class="init">
+      <div class="center1">
+        <h1>Пятнашки</h1>
+        <p>Нажмите на старт, чтобы начать игру.</p>
+        <p class="floating bold">СТАРТ</p>
+      </div>
+    </div>
+
+    <div class="no-click">
+    </div>
+        <!-- Экран победы -->
+        <div class="won box-replay">
+          <div class="center">
+            <h1 class="points_counter">Поздравляем, вы выиграли!</h1>
+            <p class="floating replay bold">Продолжить!</p>
+          </div>
+        </div>
+        <!-- Экран  проигрыша-->
+        <div class="loose box-replay">
+          <div class="center">
+            <h1>Вы проиграли!</h1>
+            <p class="floating replay bold">Начать сначала!</p>
+          </div>
+        </div>
+        <!-- Экран сохранения -->
+        <div class="init hidden">
+          <h1 class="center">Сохранение</h1>
+        </div>
+        <!-- Контейнер для игрового поля -->
+        <div class="container">
+          <div class="game"></div>
+        </div>
+        <!-- подключение библиотеки -->
+        <script src="https://cdn.jsdelivr.net/mojs/latest/mo.min.js"></script>
+        <!-- Сценарий игры -->
+        <script type="text/javascript">
+          const game = document.querySelector('.game');
+          var arrDesert = [];
+          var arrTree = [];
+          var newDesert;
+          var interval = 800;
+          // -- размер поля
+          var vert = 6;
+          var hor = 3;
+          var numBoxes = vert * hor;
+          var points = 0;
+
+          //создаем поле
+          function createGame(){
+            for (let i = 0; i < numBoxes; i++){
+              let a = document.querySelector('.game');
+              let b = document.createElement('div');
+              let nc = document.querySelector('.no-click');
+              nc.setAttribute('style', 'z-index: 998;');
+              a.setAttribute( 'style', 'width: '+ vert*108 +'px; height: ' + hor * 108 + 'px;' + 'display: grid;' + 'grid-template-columns:' + ' 108px'.repeat(vert));
+              b.classList.add('box');
+              b.setAttribute('data-value', i);
+              a.appendChild(b);
+            }
+          }
+
+          //кнопка повторить
+          function replay(){
+            var replay = document.querySelector('.replay');
+            console.log(replay);
+            replay.addEventListener('click', function(){
+              console.log('cl');
+              arrDesert = [];
+              arrTree = [];
+              //сброс состояния ячеек
+              box.forEach(function(box){
+                box.classList.remove('green');
+                box.classList.remove('tree');
+              });
+
+              // запуск новой игры
+              document.querySelector('.hidden').classList.add('levelUp');
+              let bang = document.querySelector('.won');
+              newDesert = setInterval(randomDesert, 600);
+              bang.style.animation = 'start .6s ease-in-out';
+              bang.style.top = '100%';
+              let nc = document.querySelector('.no-click');
+              nc.setAttribute('style', 'z-index: -100;');
+            });
+
+            var loose = document.querySelector('.loose');
+            loose.addEventListener('click', function(){
+              console.log('loose');
+              location.reload();
+            });
+          };
+
+          // функция добавления дерева по клику
+          function addTree(e) {
+            let c = e.target;
+
+            if (arrTree.indexOf(c.dataset.value) === -1) {
+              arrTree.push(c.dataset.value);
+              //проверка на завершение уровня
+              if (arrTree.length == numBoxes) {
+                clearInterval(newDesert);
+
+                //переход на экран победы
+                document.querySelector('.hidden').classList.remove('levelUp');
+                let bang = document.querySelector('.box-replay');
+                console.log('bang');
+                bang.style.animation = 'won .6s ease-in-out';
+                bang.style.top = '30%';
+
+                points++;
+                let counter = document.querySelector('.points_counter');
+                counter.textContent = 'Поздравляем: ' + points + '-я победа!'
+                //запуск новой игры
+                replay();
+              }
+            }
+            if (arrDesert.indexOf(c.dataset.value) != -1) {
+              arrDesert.splice(arrDesert.indexOf(c.dataset.value), 1);
+            }
+            c.classList.remove('yellow');
+            c.classList.remove('desert');
+            c.classList.add('green');
+            c.classList.add('tree');
+            console.log('arrTree');
+            console.log(arrTree);
+          }
+
+          // функция создания случайной пустыни
+          function randomDesert(){
+            let e = Math.random() * numBoxes;
+            let g = Math.floor(e);
+
+            if (arrDesert.indexOf(box[g].dataset.value) == -1) {
+              arrDesert.push(box[g].dataset.value);
+              box[g].classList.add('yellow');
+              box[g].classList.remove('green');
+              box[g].classList.add('desert');
+
+              //проверка на завершение уровня
+              if ( arrDesert.length == numBoxes) {
+                clearInterval(newDesert);
+                // --- добавим экран проигрыша
+                document.querySelector('.hidden').classList.remove('levelUp');
+                let bang = document.querySelector('.loose');
+                console.log('bang');
+                console.log(bang);
+                bang.style.animation = 'loose .6s ease-in-out';
+                bang.style.top = '30%';
+                let nc = document.querySelector('.no-click');
+                nc.setAttribute('style', 'z-index: 998;');
+                //запуск новой игры
+                //bang.addEventListener('click', location.reload())
+                //location.reload();
+                replay();
+              }
+            }
+
+            if (arrTree.indexOf(box[g].dataset.value) != -1){
+              arrTree.splice(arrTree.indexOf(box[g].dataset.value), 1);
+            }
+            // отл
+            console.log(arrDesert);
+          }
+
+          //Инициализация игры
+          // ??
+          var yol = document.querySelector('.yolo');
+          console.log("yol");
+          console.log(yol);
+          createGame();
+          var box = document.querySelectorAll('.box');
+          // ??
+          var start = document.querySelector('.floating');
+          //обработчик старта
+          start.addEventListener('click', function(){
+            let init = document.querySelector('.init');
+            init.style.animation = 'start /5s ease-in';
+            init.style.top = '100%';
+            let nc = document.querySelector('.no-click');
+            nc.setAttribute('style', 'z-index: -100;');
+            //запуск новой игры
+            newDesert = setInterval(randomDesert, interval);
+          });
+
+          // обработчик нажатия на игровую ячейку
+          box.forEach(function(box){
+            box.addEventListener('click', addTree, false);
+          }, false);
+
+          //обработчик нажатия для эффекта
+          function fire(e){
+            //!!
+            //console.log(e.target);
+            let lrg = e.target;
+            //эффект взрыва с mo.js
+            const itemDim = this.getBoundingClientRect(),
+              itemSize = {
+                x: itemDim.right - itemDim.left,
+                y: itemDim.bottom - itemDim.top,
+              };
+            let burst = new mojs.Burst({
+              left: itemDim.left + (itemSize.x / 2),
+              top: itemDim.top + (itemSize.y / 1.7),
+              count: 9,
+              radius: {
+                50: 90
+              },
+            });
+            burst.play();
+          }
+          //добавление обработчика события для эффекта при нажатии на ячейку
+          box.forEach(function(box){
+            box.addEventListener('click', fire);
+          });
+        </script>
+  </body>
+</html>
